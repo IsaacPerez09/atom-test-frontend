@@ -19,3 +19,7 @@ firebase-debug.*.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Environments (sensitive data)
+src/environments/environment.ts
+src/environments/environment.prod.ts
