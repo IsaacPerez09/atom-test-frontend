@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, firstValueFrom, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 import { ApiResponse } from './api.models';
 import { environment } from '../../../environments/environment';
 
@@ -36,14 +35,7 @@ export class HttpService {
         meta: response.meta
       };
     } catch (err) {
-      if (err instanceof HttpErrorResponse && err.error) {
-        return {
-          success: err.error.success ?? false,
-          data: null,
-          error: err.error.error ?? { code: 'UNKNOWN', message: err.message }
-        };
-      }
-      throw err;
+      return this.handleError(err);
     }
   }
 
@@ -59,14 +51,7 @@ export class HttpService {
         meta: response.meta
       };
     } catch (err) {
-      if (err instanceof HttpErrorResponse && err.error) {
-        return {
-          success: err.error.success ?? false,
-          data: null,
-          error: err.error.error ?? { code: 'UNKNOWN', message: err.message }
-        };
-      }
-      throw err;
+      return this.handleError(err);
     }
   }
 
@@ -82,14 +67,7 @@ export class HttpService {
         meta: response.meta
       };
     } catch (err) {
-      if (err instanceof HttpErrorResponse && err.error) {
-        return {
-          success: err.error.success ?? false,
-          data: null,
-          error: err.error.error ?? { code: 'UNKNOWN', message: err.message }
-        };
-      }
-      throw err;
+      return this.handleError(err);
     }
   }
 
@@ -105,14 +83,38 @@ export class HttpService {
         meta: response.meta
       };
     } catch (err) {
-      if (err instanceof HttpErrorResponse && err.error) {
+      return this.handleError(err);
+    }
+  }
+
+  private handleError(err: unknown): HttpResult<any> {
+    if (err instanceof HttpErrorResponse) {
+
+      if (err.status === 0) {
         return {
-          success: err.error.success ?? false,
+          success: false,
           data: null,
-          error: err.error.error ?? { code: 'UNKNOWN', message: err.message }
+          error: {
+            code: 'CONNECTION_REFUSED',
+            message: 'No se pudo conectar con el servidor.'
+          }
         };
       }
-      throw err;
+
+
+      const errorBody = err.error;
+      return {
+        success: errorBody?.success ?? false,
+        data: null,
+        error: errorBody?.error ?? { code: `HTTP_${err.status}`, message: err.message }
+      };
     }
+
+
+    return {
+      success: false,
+      data: null,
+      error: { code: 'CLIENT_ERROR', message: (err as Error).message || 'Ocurrió un error inesperado' }
+    };
   }
 }

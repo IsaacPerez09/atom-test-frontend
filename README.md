@@ -47,6 +47,18 @@ npm install -g @angular/cli
 | `ng test` | Ejecuta las pruebas unitarias |
 | `ng lint` | Verifica el código con ESLint |
 
+
+### Archivos de Tests
+
+```
+src/app/
+├── core/services/
+│   └── auth.service.spec.ts   # 9 tests para autenticación
+└── features/tasks/
+    └── task.service.spec.ts  # 6 tests para gestión de tareas
+```
+
+
 ### Desarrollo Local
 
 Para iniciar el servidor de desarrollo:
@@ -57,46 +69,6 @@ ng serve
 
 La aplicación estará disponible en: http://localhost:4200
 
-### Notas sobre el Backend
-
-El frontend espera que el backend esté disponible en:
-
-```
-https://us-central1-atom-task-manager-77028.cloudfunctions.net/api
-```
-
-Asegúrate de que las Cloud Functions estén desplegadas antes de probar el frontend localmente.
-
-## Variables de Entorno / Secrets
-
-### Secrets Requeridos (CI/CD)
-
-| Secret | Descripción |
-|--------|-------------|
-| `FIREBASE_TOKEN` | Token de autenticación de Firebase para deploys |
-| `PROJECT_ID` | ID del proyecto Firebase (`atom-task-manager-77028`) |
-
-### Generar Firebase Token
-
-```bash
-npm install -g firebase-tools
-firebase login:ci
-```
-
-### Configuración de Environments
-
-La configuración de producción está en `src/environments/environment.prod.ts`:
-
-```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'https://us-central1-atom-task-manager-77028.cloudfunctions.net/api',
-  firebase: {
-    projectId: 'atom-task-manager-77028',
-    // ... otras config de Firebase
-  }
-};
-```
 
 ## Estructura del Proyecto
 
@@ -130,6 +102,23 @@ atom-test-frontend/
 - **Core:** Servicios singleton como AuthService, HttpService, guards. Solo se cargan una vez.
 - **Features:** Funcionalidades específicas de la aplicación (login, tareas). Cada feature es independiente.
 - **Shared:** Componentes y utilerías que se reutilizan en toda la aplicación.
+
+## Decisiones de Diseño y Comentarios
+
+### Angular 17 con Standalone Components
+Todo son componentes standalone. No se usa NgModule, lo que reduce boilerplate y mejora tree-shaking.
+
+### Signals para estado
+Se usan Angular Signals en lugar de RxJS observables para estado local. Más simple y reactivo con menos código.
+
+### Tailwind CSS
+Estilos utilitarios para desarrollo rápido. Customizado con paleta de colores del proyecto.
+
+### HttpClient con interceptores
+Requests pasan por interceptores que agregan automáticamente el token de autenticación y manejan errores.
+
+### Control flow moderno
+Se usan las nuevas directivas `@if`, `@for`, `@switch` en lugar de *ngIf, *ngFor para código más legible.
 
 ## Funcionalidades
 
@@ -200,7 +189,6 @@ Firebase Hosting
 | Recurso | URL |
 |--------|-----|
 | Aplicación | https://atom-task-manager-77028.web.app |
-| API Backend | https://us-central1-atom-task-manager-77028.cloudfunctions.net/api |
 
 ## Conexión Frontend-Backend
 
@@ -212,10 +200,4 @@ Frontend (Firebase Hosting)
 Backend (Firebase Cloud Functions 2nd Gen)
     ↓
 Firestore Database
-```
-
-El endpoint base está configurado en `environment.prod.ts`:
-
-```
-apiUrl: 'https://us-central1-atom-task-manager-77028.cloudfunctions.net/api'
 ```
