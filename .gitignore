@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Angular cache and build
+.angular/
+dist/
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firebase-debug.*.log*
+
+# IDEs and OS
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
