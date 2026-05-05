@@ -1,7 +1,8 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { TaskService } from '../../task.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Task } from '../../../../core/models/task.models';
@@ -10,7 +11,7 @@ import { TaskFormComponent } from '../task-form/task-form.component';
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [FormsModule, TaskFormComponent, DatePipe],
+  imports: [FormsModule, TaskFormComponent, DatePipe, A11yModule],
   templateUrl: './task-list.component.html',
 })
 export class TaskListComponent {
@@ -41,6 +42,17 @@ export class TaskListComponent {
 
   readonly pendingTasks = computed(() => this.sortedTasks().filter(t => !t.completed));
   readonly completedTasks = computed(() => this.sortedTasks().filter(t => t.completed));
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.editingTask()) {
+      this.cancelEdit();
+    } else if (this.deletingTask()) {
+      this.cancelDelete();
+    } else if (this.creatingTask()) {
+      this.cancelCreate();
+    }
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadTasks();

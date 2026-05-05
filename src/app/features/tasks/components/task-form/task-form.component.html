@@ -1,7 +1,10 @@
-<form (ngSubmit)="onSubmit()">
+<form (ngSubmit)="onSubmit()" aria-label="Formulario para crear tarea">
   <div class="space-y-4">
     <div>
-      <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+      <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+        Título
+        <span class="text-red-500" aria-hidden="true">*</span>
+      </label>
       <input
         type="text"
         id="title"
@@ -11,7 +14,12 @@
         class="input-field"
         placeholder="¿Qué necesitas hacer?"
         required
+        aria-required="true"
+        aria-describedby="title-hint"
       />
+      <p id="title-hint" class="mt-1 text-sm text-gray-500">
+        Describe brevemente la tarea
+      </p>
     </div>
     <div>
       <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción (opcional)</label>
@@ -23,22 +31,33 @@
         class="input-field"
         rows="2"
         placeholder="Añade más detalles..."
+        aria-describedby="desc-hint"
       ></textarea>
+      <p id="desc-hint" class="mt-1 text-sm text-gray-500">
+        Agrega información adicional si es necesario
+      </p>
     </div>
     <div class="flex gap-3 pt-2">
       <button
         type="button"
         (click)="cancel.emit()"
-        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus-visible-ring"
+        aria-label="Cancelar y cerrar formulario"
       >
         Cancelar
       </button>
       <button
         type="submit"
-        class="flex-1 btn-primary"
+        class="flex-1 btn-primary focus-visible-ring"
         [disabled]="!title().trim() || submitting()"
+        [attr.aria-busy]="submitting()"
+        aria-label="Crear tarea"
       >
+        @if (submitting()) {
+        <span role="status">Creando...</span>
+        } @else {
         Añadir Tarea
+        }
       </button>
     </div>
   </div>

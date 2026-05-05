@@ -1,13 +1,14 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { A11yModule } from '@angular/cdk/a11y';
 import { AuthService } from '../../core/services/auth.service';
 import { User, AuthResponse } from '../../core/models/auth.models';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, A11yModule],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
@@ -18,11 +19,24 @@ export class LoginComponent {
   loading = signal(false);
   error = signal<string | null>(null);
   showCreateDialog = signal(false);
+  touched = signal(false);
 
   readonly isValidEmail = computed(() => {
     const email = this.email();
     return email.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   });
+
+  readonly emailHintId = computed(() => {
+    const hasError = this.touched() && !this.isValidEmail() && this.email().length > 0;
+    return hasError ? 'email-error' : 'email-hint';
+  });
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.showCreateDialog()) {
+      this.onCancelCreate();
+    }
+  }
 
   async onSubmit(): Promise<void> {
     if (!this.isValidEmail()) {
@@ -88,5 +102,9 @@ export class LoginComponent {
   onCancelCreate(): void {
     this.showCreateDialog.set(false);
     this.email.set('');
+  }
+
+  onEmailBlur(): void {
+    this.touched.set(true);
   }
 }

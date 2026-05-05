@@ -13,5 +13,19 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.focus-visible-ring': {
+          '&:focus': {
+            outline: 'none',
+          },
+          '&:focus-visible': {
+            outline: '2px solid #00a6ffff',
+            outlineOffset: '2px',
+          },
+        },
+      });
+    },
+  ],
 };
